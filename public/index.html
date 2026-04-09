@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quill — For Readers & Writers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy: #000033;
+    --navy-mid: #1a2340;
+    --cream: #f5f0e8;
+    --cream-dark: #ede7d9;
+    --ink: #000033;
+    --muted: #6b7280;
+    --accent: #c9a96e;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 2.5rem;
+    background: rgba(245, 240, 232, 0.88);
+    backdrop-filter: blur(12px);
+    border-bottom: 0.5px solid rgba(0,0,51,0.1);
+  }
+
+  .nav-logo { display: flex; align-items: center; text-decoration: none; }
+  .nav-logo svg { height: 26px; width: auto; }
+
+  .nav-badge {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--navy);
+    border: 0.5px solid var(--navy);
+    padding: 0.3rem 0.75rem;
+    border-radius: 100px;
+    opacity: 0.5;
+  }
+
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    padding-top: 64px;
+  }
+
+  .hero-left {
+    padding: 5rem 4rem 5rem 6vw;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .eyebrow {
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .eyebrow::before {
+    content: '';
+    display: block;
+    width: 28px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.8rem, 5vw, 4.2rem);
+    font-weight: 700;
+    line-height: 1.12;
+    color: var(--navy);
+  }
+
+  h1 em { font-style: italic; font-weight: 400; color: var(--accent); }
+
+  .hero-sub {
+    font-size: 1.05rem;
+    line-height: 1.75;
+    color: var(--muted);
+    max-width: 400px;
+  }
+
+  .waitlist-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-width: 420px;
+  }
+
+  .input-row { display: flex; gap: 0.5rem; }
+
+  .waitlist-form input {
+    flex: 1;
+    padding: 0.85rem 1.1rem;
+    border: 0.5px solid rgba(0,0,51,0.25);
+    border-radius: 8px;
+    background: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    color: var(--navy);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .waitlist-form input:focus { border-color: var(--navy); }
+  .waitlist-form input::placeholder { color: #9ca3af; }
+
+  .btn-join {
+    padding: 0.85rem 1.75rem;
+    background: var(--navy);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s, transform 0.15s;
+  }
+
+  .btn-join:hover { background: var(--navy-mid); transform: translateY(-1px); }
+  .btn-join:active { transform: translateY(0); }
+
+  .form-note { font-size: 0.75rem; color: var(--muted); line-height: 1.5; }
+
+  .success-msg {
+    display: none;
+    background: rgba(0,0,51,0.05);
+    border: 0.5px solid rgba(0,0,51,0.15);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    max-width: 420px;
+  }
+
+  .success-msg.show { display: block; animation: fadeUp 0.4s ease forwards; }
+  .success-msg .check { font-size: 1.4rem; margin-bottom: 0.5rem; }
+  .success-msg h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem; font-weight: 700;
+    color: var(--navy); margin-bottom: 0.4rem;
+  }
+  .success-msg p { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+
+  .hero-right {
+    background: var(--navy);
+    height: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 3rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-right::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 30% 70%, rgba(201,169,110,0.07) 0%, transparent 60%);
+  }
+
+  .quill-hero-logo {
+    width: 200px;
+    margin-bottom: 3rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .illustrations {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .illus-item { display: flex; align-items: center; justify-content: center; }
+
+  .illus-item svg {
+    width: 54px; height: 54px;
+    stroke: rgba(255,255,255,0.7);
+    fill: none;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    animation: float 4s ease-in-out infinite;
+  }
+
+  .illus-item:nth-child(2) svg { animation-delay: 0.5s; }
+  .illus-item:nth-child(3) svg { animation-delay: 1s; }
+  .illus-item:nth-child(4) svg { animation-delay: 1.5s; }
+  .illus-item:nth-child(5) svg { animation-delay: 2s; }
+  .illus-item:nth-child(6) svg { animation-delay: 2.5s; }
+
+  .features {
+    background: var(--navy);
+    padding: 5rem 6vw;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+
+  .feature-card {
+    padding: 2rem;
+    border: 0.5px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .feature-card:hover { border-color: rgba(201,169,110,0.4); transform: translateY(-3px); }
+
+  .feature-icon { width: 40px; height: 40px; stroke: var(--accent); fill: none; stroke-width: 1.5; stroke-linecap: round; }
+
+  .feature-card h3 { font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: 700; color: #fff; }
+  .feature-card p { font-size: 0.88rem; line-height: 1.7; color: rgba(255,255,255,0.5); }
+
+  footer {
+    background: var(--cream-dark);
+    padding: 1.75rem 6vw;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 0.5px solid rgba(0,0,51,0.1);
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .footer-logo { display: flex; align-items: center; text-decoration: none; }
+  .footer-logo svg { height: 20px; width: auto; }
+
+  .footer-socials { display: flex; align-items: center; gap: 1.25rem; }
+
+  .social-link {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    text-decoration: none;
+    color: var(--navy);
+    opacity: 0.5;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    transition: opacity 0.2s;
+  }
+
+  .social-link:hover { opacity: 1; }
+
+  .social-link svg { width: 17px; height: 17px; flex-shrink: 0; }
+  .social-link.instagram svg { fill: var(--navy); }
+  .social-link.email svg { fill: none; stroke: var(--navy); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+  .social-divider { width: 1px; height: 14px; background: rgba(0,0,51,0.18); }
+
+  footer p { font-size: 0.75rem; color: var(--muted); }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-left > * { animation: fadeUp 0.6s ease both; }
+  .hero-left > *:nth-child(1) { animation-delay: 0.05s; }
+  .hero-left > *:nth-child(2) { animation-delay: 0.15s; }
+  .hero-left > *:nth-child(3) { animation-delay: 0.25s; }
+  .hero-left > *:nth-child(4) { animation-delay: 0.35s; }
+
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; min-height: auto; }
+    .hero-right { min-height: 360px; order: -1; padding: 3rem 2rem; }
+    .hero-left { padding: 3rem 2rem 4rem; }
+    .quill-hero-logo { width: 150px; margin-bottom: 2rem; }
+    .illustrations { gap: 1rem 1.5rem; }
+    .illus-item svg { width: 42px; height: 42px; }
+    .features { grid-template-columns: 1fr; padding: 3rem 2rem; }
+    nav { padding: 0.9rem 1.5rem; }
+    footer { flex-direction: column; align-items: flex-start; gap: 1rem; }
+    .input-row { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="#">
+    <img src="quill-logo.svg" alt="Quill Logo" height="50">
+  </a>
+  <span class="nav-badge">Coming soon</span>
+</nav>
+
+<main>
+  <section class="hero">
+    <div class="hero-left">
+      <div class="eyebrow">Join the waitlist</div>
+
+      <h1>Where <em>stories</em> find<br>their people</h1>
+
+      <p class="hero-sub">
+        Quill connects readers and writers who share a passion for the written word. Be the first to know when we open our doors.
+      </p>
+
+      <div class="waitlist-form" id="form-wrapper">
+        <div class="input-row">
+          <input type="email" id="email-input" placeholder="Enter your email address" autocomplete="email" />
+          <button class="btn-join" onclick="joinWaitlist()">Join waitlist</button>
+        </div>
+        <p class="form-note">No spam, ever. One confirmation now, one email when we launch.</p>
+      </div>
+
+      <div class="success-msg" id="success-msg">
+        <div class="check">✦</div>
+        <h3>You're on the list!</h3>
+        <p>Check your inbox — a confirmation is on its way. We'll reach out the moment Quill is ready for you.</p>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <!-- Quill logo in white on dark panel -->
+        <img src="quill-logo-2.svg" alt="Quill Logo" height="300" width="300">
+        <div class="social-divider"></div>
+
+      <div class="illustrations">
+        <div class="illus-item"><svg viewBox="0 0 56 56"><path d="M28 14 C28 14 16 10 8 12 L8 44 C16 42 28 46 28 46 C28 46 40 42 48 44 L48 12 C40 10 28 14 28 14Z"/><line x1="28" y1="14" x2="28" y2="46"/></svg></div>
+        <div class="illus-item"><svg viewBox="0 0 56 56"><path d="M44 8 C44 8 20 20 14 42 L18 46 C24 30 44 8 44 8Z"/><path d="M14 42 L12 48 L18 46"/></svg></div>
+        <div class="illus-item"><svg viewBox="0 0 56 56"><rect x="12" y="20" width="24" height="22" rx="3"/><path d="M36 26 C40 26 44 28 44 32 C44 36 40 38 36 38"/><line x1="8" y1="44" x2="44" y2="44"/><path d="M20 14 C20 10 24 10 24 14"/></svg></div>
+        <div class="illus-item"><svg viewBox="0 0 56 56"><circle cx="28" cy="28" r="6"/><ellipse cx="28" cy="14" rx="5" ry="7"/><ellipse cx="28" cy="42" rx="5" ry="7"/><ellipse cx="14" cy="28" rx="7" ry="5"/><ellipse cx="42" cy="28" rx="7" ry="5"/></svg></div>
+        <div class="illus-item"><svg viewBox="0 0 56 56"><path d="M28 42 C28 42 10 30 10 20 C10 14 15 10 22 12 C25 13 28 16 28 16 C28 16 31 13 34 12 C41 10 46 14 46 20 C46 30 28 42 28 42Z"/></svg></div>
+        <div class="illus-item"><svg viewBox="0 0 56 56"><rect x="14" y="36" width="28" height="8" rx="2"/><rect x="11" y="28" width="26" height="8" rx="2"/><rect x="14" y="20" width="24" height="8" rx="2"/></svg></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="features">
+    <div class="feature-card">
+      <svg class="feature-icon" viewBox="0 0 40 40"><path d="M20 6 C8 10 8 22 8 22 C8 30 14 36 20 36 C26 36 32 30 32 22 C32 10 20 6 20 6Z"/><line x1="20" y1="6" x2="20" y2="36"/><line x1="8" y1="22" x2="32" y2="22"/></svg>
+      <h3>Discover your next read</h3>
+      <p>Personalized recommendations from readers who share your exact taste — not just an algorithm.</p>
+    </div>
+    <div class="feature-card">
+      <svg class="feature-icon" viewBox="0 0 40 40"><circle cx="20" cy="12" r="6"/><path d="M8 34 C8 26 12 22 20 22 C28 22 32 26 32 34"/><line x1="26" y1="8" x2="34" y2="8"/><line x1="30" y1="4" x2="30" y2="12"/></svg>
+      <h3>Build your writing community</h3>
+      <p>Share your work, get thoughtful feedback, and find readers who are rooting for your words.</p>
+    </div>
+    <div class="feature-card">
+      <svg class="feature-icon" viewBox="0 0 40 40"><rect x="8" y="8" width="24" height="30" rx="3"/><line x1="13" y1="16" x2="27" y2="16"/><line x1="13" y1="22" x2="27" y2="22"/><line x1="13" y1="28" x2="20" y2="28"/></svg>
+      <h3>Your library, finally social</h3>
+      <p>Track what you've read, curate shelves, and see what the people you admire are reading right now.</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+    <img src="quill-logo.svg" alt="Quill Logo" height="50">
+  </a>
+
+  <div class="footer-socials">
+    <!-- Instagram icon -->
+    <a class="social-link instagram" href="https://instagram.com/quillcoapp" target="_blank" rel="noopener" title="Instagram">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+      </svg>
+      @quillcoapp
+    </a>
+
+    <div class="social-divider"></div>
+
+    <!-- Email icon -->
+    <a class="social-link email" href="mailto:quillcoapp@gmail.com" title="Email us">
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <rect x="2" y="4" width="20" height="16" rx="2"/>
+    <polyline points="2,4 12,13 22,4"/>
+  </svg>
+  Email us!
+</a>
+  </div>
+
+  <p>© 2025 Quill. Made for readers.</p>
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+async function joinWaitlist() {
+  const emailEl = document.getElementById('email-input');
+  const email = emailEl.value.trim();
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    emailEl.style.borderColor = '#e24b4a';
+    emailEl.focus();
+    setTimeout(() => emailEl.style.borderColor = '', 2000);
+    return;
+  }
+
+  try {
+    const res = await fetch('http://localhost:3000/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      document.getElementById('form-wrapper').style.display = 'none';
+      document.getElementById('success-msg').classList.add('show');
+    } else {
+      alert('Failed to send email. Try again.');
+    }
+  } catch (err) {
+    console.error('Fetch error:', err);
+    alert('Server error. Try again later.');
+  }
+}
+
+document.getElementById('email-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') joinWaitlist();
+});
+</script>
