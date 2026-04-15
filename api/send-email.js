@@ -1,6 +1,6 @@
-import { Resend } from 'resend';
-import { GoogleSpreadsheet } from 'google-spreadsheet';
-import { JWT } from 'google-auth-library';
+const { Resend } = require('resend');
+const { GoogleSpreadsheet } = require('google-spreadsheet');
+const { JWT } = require('google-auth-library');
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
