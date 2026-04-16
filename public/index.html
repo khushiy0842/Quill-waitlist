@@ -145,11 +145,12 @@
     font-weight: 500;
     cursor: pointer;
     white-space: nowrap;
-    transition: background 0.2s, transform 0.15s;
+    transition: background 0.2s, transform 0.15s, opacity 0.2s;
   }
 
-  .btn-join:hover { background: var(--navy-mid); transform: translateY(-1px); }
-  .btn-join:active { transform: translateY(0); }
+  .btn-join:hover:not(:disabled) { background: var(--navy-mid); transform: translateY(-1px); }
+  .btn-join:active:not(:disabled) { transform: translateY(0); }
+  .btn-join:disabled { opacity: 0.6; cursor: not-allowed; }
 
   .form-note { font-size: 0.75rem; color: var(--muted); line-height: 1.5; }
 
@@ -341,7 +342,7 @@
       <div class="waitlist-form" id="form-wrapper">
         <div class="input-row">
           <input type="email" id="email-input" placeholder="Enter your email address" autocomplete="email" />
-          <button class="btn-join" onclick="joinWaitlist()">Join waitlist</button>
+          <button class="btn-join" id="join-btn" onclick="joinWaitlist()">Join waitlist</button>
         </div>
         <p class="form-note">No spam, ever. One confirmation now, one email when we launch.</p>
       </div>
@@ -354,9 +355,8 @@
     </div>
 
     <div class="hero-right">
-      <!-- Quill logo in white on dark panel -->
-        <img src="quill-logo-2.svg" alt="Quill Logo" height="300" width="300">
-        <div class="social-divider"></div>
+      <img src="quill-logo-2.svg" alt="Quill Logo" height="300" width="300">
+      <div class="social-divider"></div>
 
       <div class="illustrations">
         <div class="illus-item"><svg viewBox="0 0 56 56"><path d="M28 14 C28 14 16 10 8 12 L8 44 C16 42 28 46 28 46 C28 46 40 42 48 44 L48 12 C40 10 28 14 28 14Z"/><line x1="28" y1="14" x2="28" y2="46"/></svg></div>
@@ -389,11 +389,9 @@
 </main>
 
 <footer>
-    <img src="quill-logo.svg" alt="Quill Logo" height="50">
-  </a>
+  <img src="quill-logo.svg" alt="Quill Logo" height="50">
 
   <div class="footer-socials">
-    <!-- Instagram icon -->
     <a class="social-link instagram" href="https://instagram.com/quillcoapp" target="_blank" rel="noopener" title="Instagram">
       <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
@@ -403,22 +401,22 @@
 
     <div class="social-divider"></div>
 
-    <!-- Email icon -->
     <a class="social-link email" href="mailto:quillcoapp@gmail.com" title="Email us">
-  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <rect x="2" y="4" width="20" height="16" rx="2"/>
-    <polyline points="2,4 12,13 22,4"/>
-  </svg>
-  Email us!
-</a>
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="4" width="20" height="16" rx="2"/>
+        <polyline points="2,4 12,13 22,4"/>
+      </svg>
+      Email us!
+    </a>
   </div>
 
   <p>© 2025 Quill. Made for readers.</p>
 </footer>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 async function joinWaitlist() {
   const emailEl = document.getElementById('email-input');
+  const btn = document.getElementById('join-btn');
   const email = emailEl.value.trim();
 
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -428,8 +426,12 @@ async function joinWaitlist() {
     return;
   }
 
+  // Disable button and show loading state
+  btn.disabled = true;
+  btn.textContent = 'Joining...';
+
   try {
-    const res = await fetch('http://localhost:3000/send-email', {
+    const res = await fetch('/api/send-email', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email })
@@ -440,12 +442,22 @@ async function joinWaitlist() {
     if (data.success) {
       document.getElementById('form-wrapper').style.display = 'none';
       document.getElementById('success-msg').classList.add('show');
+    } else if (res.status === 409) {
+      // Already registered
+      emailEl.style.borderColor = '#e24b4a';
+      btn.disabled = false;
+      btn.textContent = 'Join waitlist';
+      alert('This email is already on the waitlist!');
     } else {
-      alert('Failed to send email. Try again.');
+      btn.disabled = false;
+      btn.textContent = 'Join waitlist';
+      alert('Something went wrong. Please try again.');
     }
   } catch (err) {
     console.error('Fetch error:', err);
-    alert('Server error. Try again later.');
+    btn.disabled = false;
+    btn.textContent = 'Join waitlist';
+    alert('Server error. Please try again later.');
   }
 }
 
@@ -453,3 +465,5 @@ document.getElementById('email-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') joinWaitlist();
 });
 </script>
+</body>
+</html>
